@@ -46,6 +46,22 @@ Areas_Surfclam <- read.csv("C:/git/Maritimes/Mar.data/data-raw/Science/Surfclam/
 Areas_Surfclam_sf <-     df_to_sf(Areas_Surfclam)
 colnames(Areas_Surfclam_sf)[colnames(Areas_Surfclam_sf)=="PID"] <- "AREA"
 
+#### LICENCE AREAS
+#### Make licence areas sf
+#first pull the polygons provided by Leslie
+surfClamAreas_ <-read.csv("data-raw/Science/Surfclam/OffshoreClamConditions.csv")
+surfClamAreas_sf <- Mar.utils::df_to_sf(surfClamAreas_, lat.field = "Y", lon.field = "X", primary.object.field = "PID", order.field = "POS")
+surfClamAreas_sf$Name <- c("Sable Bank", "Middle Bank", "Banquereau Bank")
+surfClamAreas_sf$PID <- NULL
+
+#then make a separate one from the NAFO areas 3LNO
+Grand <- Mar.data::NAFOSubunits_sf[Mar.data::NAFOSubunits_sf$NAFO_1 %in% c('3L', '3N', '3O'),]
+Grand_single <- st_union(Grand$geometry)
+Grand_single_df <- data.frame('Name' = 'Grand Bank')
+Grand_single <- st_sf(Grand_single_df, geometry = st_sfc(Grand_single, crs = st_crs(Grand)))
+
+SurfClamFAs_sf <- rbind(Grand_single, surfClamAreas_sf)
+
 LFAs <- read.csv("C:/git/Maritimes/Mar.data/data-raw/Science/Lobster/LFAPolys.csv")
 LFAs_sf <-     df_to_sf(LFAs)
 colnames(LFAs_sf)[colnames(LFAs_sf)=="PID"] <- "LFA"
@@ -56,7 +72,7 @@ coastline =  maps::map(database = "world", regions = c("Canada", "USA", "France"
 coast_lores_sf = sf::st_as_sf(coastline)
 
 save(GeorgesBankDiscardZones_sf,file = "data/GeorgesBankDiscardZones_sf.rda")
-save(Areas_Surfclam_sf,file = "data/Areas_Surfclam_sf.rda")
+# save(Areas_Surfclam_sf,file = "data/Areas_Surfclam_sf.rda")
 save(Areas_Halibut_sf,file = "data/Areas_Halibut_sf.rda")
 # rm(coast_lores)
 save(coast_lores_sf,file = "data/coast_lores_sf.rda")
@@ -78,8 +94,56 @@ save(Areas_Shrimp_sf,file = "data/Areas_Shrimp_sf.rda")
 save(Areas_Snowcrab_sf,file = "data/Areas_Snowcrab_sf.rda")
 save(Areas_Snowcrab_Slope_sf,file = "data/Areas_Snowcrab_Slope_sf.rda")
 
+
+### BANKS -  get the isobaths demarking the various banks
+c100 = read.table("data-raw/geophysical/CHS100.ll", header=T) #this is specific to how my system is set up
+Banq100  <- na.omit(subset(c100,SID==2392)) # 100m isobath for Banqureau
+Grand100 <- na.omit(subset(c100,SID==1518)) # 100m isobath for Grand Bank
+Sable100 <- na.omit(subset(c100,SID==2943)) # 100m isobath for Sable Bank
+Middle100 <- na.omit(subset(c100,SID==2658)) # 100m isobath for Middle Bank
+Emerald100 <- na.omit(subset(c100,SID==2943)) # 100m isobath for Emerald Bank
+LaHave100 <- na.omit(subset(c100,SID==3742)) # 100m isobath for Lahave Bank
+Browns100 <- na.omit(subset(c100,SID==3900)) # 100m isobath for Browns Bank
+StPierre100 <- na.omit(subset(c100,SID==1693)) # 100m isobath for StPierre Bank
+Green100 <- na.omit(subset(c100,SID==2047)) # 100m isobath for Green Bank
+Burgeo100 <- na.omit(subset(c100,SID==1787)) # 100m isobath for Burgeo Bank
+
+Banq100$Name <- "Banquereau Bank"
+Grand100$Name <- "Grand Banks"
+Sable100$Name <- "Sable Bank"
+Middle100$Name <- "Middle Bank"
+Emerald100$Name <- "Emerald Bank"
+LaHave100$Name <- "LaHave Bank"
+Browns100$Name  <- "Browns Bank"
+StPierre100$Name <- "St Pierre Bank"
+Green100$Name <- "Green Bank"
+Burgeo100$Name <- "Burgeo Bank"
+
+banks <- rbind(Banq100,Grand100,Sable100,Middle100,Emerald100,LaHave100,Browns100 ,StPierre100,Green100,Burgeo100)
+banks_sf <- st_as_sf(banks, coords = c("X", "Y"), crs = 4326)
+
+#'Georges was messed up in the ll file, since it was not a single polygon.  I cut it off in QGIS,
+#'so it has a vertical western boundary
+Georges100 <- st_read("data-raw/geophysical/georges.shp")
+Georges100$Name <- "Georges Bank"
+Georges100$fid <- NULL
+Georges100_sf <- Georges100 %>%
+  group_by(Name, SID) %>%
+  summarise(geometry = st_combine(geometry), do_union = FALSE) %>%
+  st_cast("LINESTRING")
+
+banks_sf<- rbind(banks_sf, Georges100)
+banks_sf <- banks_sf %>%
+  group_by(Name, SID) %>%
+  summarise(geometry = st_combine(geometry), do_union = FALSE) %>%
+  st_cast("LINESTRING")
+banks_sf <- st_cast(banks_sf, "POLYGON")
+banks_sf <- st_make_valid(banks_sf)
+
+
 usethis::use_data(GeorgesBankDiscardZones_sf, overwrite = TRUE)
-usethis::use_data(Areas_Surfclam_sf, overwrite = TRUE)
+# usethis::use_data(Areas_Surfclam_sf, overwrite = TRUE)
+usethis::use_data(SurfClamFAs_sf, overwrite = TRUE)
 usethis::use_data(Areas_Halibut_sf, overwrite = TRUE)
 # usethis::use_data(coast_lores, overwrite = TRUE)
 usethis::use_data(coast_lores_sf, overwrite = TRUE)
@@ -97,3 +161,4 @@ usethis::use_data(SPAs_Scallop_sf, overwrite = TRUE)
 usethis::use_data(Areas_Shrimp_sf, overwrite = TRUE)
 usethis::use_data(Areas_Snowcrab_sf, overwrite = TRUE)
 usethis::use_data(Areas_Snowcrab_Slope_sf, overwrite = TRUE)
+usethis::use_data(banks_sf, overwrite = TRUE)
