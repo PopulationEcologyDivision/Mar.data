@@ -21,8 +21,6 @@ NAFOSubunitsLnd_sf$OBJECTID<- NAFOSubunitsLnd_sf$Shape_Leng<- NAFOSubunitsLnd_sf
 colnames(NAFOSubunitsLnd_sf)[colnames(NAFOSubunitsLnd_sf)=="NAFO_BEST"]<- "NAFO"
 
 Strata_Mar_sf      <- sf::st_read("C:/git/Maritimes/Mar.data/data-raw/Strata/MaritimesRegionEcosystemAssessmentStrata(2014-).shp")
-
-
 Strata_Mar_4VSW_sf  <- sf::st_read("C:/git/Maritimes/Mar.data/data-raw/Strata/4VsW.shp")
 
 Areas_Shrimp_sf      <- sf::st_read ("C:/git/Maritimes/Mar.data/data-raw/Science/Shrimp/shrimpBoxesPoly.shp")
@@ -55,6 +53,9 @@ surfClamAreas_sf <- Mar.utils::df_to_sf(surfClamAreas_, lat.field = "Y", lon.fie
 surfClamAreas_sf$Name <- c("Sable Bank", "Middle Bank", "Banquereau Bank")
 surfClamAreas_sf$PID <- NULL
 
+Bathy_sf      <- sf::st_read("C:/git/Maritimes/Mar.data/data-raw/geophysical/GEBBCO_PED.shp")
+usethis::use_data(Bathy_sf, overwrite = TRUE, compress = "xz")
+
 #then make a separate one from the NAFO areas 3LNO
 Grand <- Mar.data::NAFOSubunits_sf[Mar.data::NAFOSubunits_sf$NAFO_1 %in% c('3L', '3N', '3O'),]
 Grand_single <- st_union(Grand$geometry)
@@ -68,6 +69,7 @@ LFAs_sf <-     df_to_sf(LFAs)
 colnames(LFAs_sf)[colnames(LFAs_sf)=="PID"] <- "LFA"
 
 hex_sf <- sf::st_as_sf(hex)
+grid2Min_sf <-  sf::st_as_sf(grid2Min)
 
 coastline =  maps::map(database = "world", regions = c("Canada", "USA", "France", "Greenland"), fill = T, resolution = 0)
 coast_lores_sf = sf::st_as_sf(coastline)
@@ -151,7 +153,8 @@ usethis::use_data(Areas_Halibut_sf, overwrite = TRUE)
 
 # usethis::use_data(coast_lores, overwrite = TRUE)
 usethis::use_data(coast_lores_sf, overwrite = TRUE)
-usethis::use_data(hex_sf, overwrite = TRUE)
+usethis::use_data(hex_sf, overwrite = TRUE,compress = "xz")
+usethis::use_data(grid2Min_sf, overwrite = TRUE, compress = "xz")
 usethis::use_data(LFAs_sf, overwrite = TRUE)
 usethis::use_data(Grids_Lobster_sf, overwrite = TRUE)
 usethis::use_data(Strata_Mar_4VSW_sf, overwrite = TRUE)
