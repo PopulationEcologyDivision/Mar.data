@@ -6,6 +6,6 @@
 #' \describe{
 #' \item{Name}{Name of the area}
 #' }
-#' @name banks_sf
+#' @name SurfClamFAs_sf
 #' @docType data
-NULL
+"SurfClamFAs_sf"

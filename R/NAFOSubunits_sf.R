@@ -7,7 +7,6 @@
 #'
 #' @source https://www.nafo.int/Data/GIS
 #'
-#' if{html}{figure{NAFOSubunits.png}{options:alt="Figure: NAFOSubunits coverage area"}}
 #' @docType data
 #' @format sf multipolygon
 #' \describe{

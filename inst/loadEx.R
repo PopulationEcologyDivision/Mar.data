@@ -22,6 +22,7 @@ colnames(NAFOSubunitsLnd_sf)[colnames(NAFOSubunitsLnd_sf)=="NAFO_BEST"]<- "NAFO"
 
 Strata_Mar_sf      <- sf::st_read("C:/git/Maritimes/Mar.data/data-raw/Strata/MaritimesRegionEcosystemAssessmentStrata(2014-).shp")
 
+
 Strata_Mar_4VSW_sf  <- sf::st_read("C:/git/Maritimes/Mar.data/data-raw/Strata/4VsW.shp")
 
 Areas_Shrimp_sf      <- sf::st_read ("C:/git/Maritimes/Mar.data/data-raw/Science/Shrimp/shrimpBoxesPoly.shp")
@@ -131,12 +132,14 @@ Georges100_sf <- Georges100 %>%
   group_by(Name, SID) %>%
   summarise(geometry = st_combine(geometry), do_union = FALSE) %>%
   st_cast("LINESTRING")
+Georges100_sf <- dplyr::ungroup(Georges100_sf)
 
 banks_sf<- rbind(banks_sf, Georges100)
 banks_sf <- banks_sf %>%
   group_by(Name, SID) %>%
   summarise(geometry = st_combine(geometry), do_union = FALSE) %>%
   st_cast("LINESTRING")
+banks_sf <- dplyr::ungroup(banks_sf)
 banks_sf <- st_cast(banks_sf, "POLYGON")
 banks_sf <- st_make_valid(banks_sf)
 
@@ -145,6 +148,7 @@ usethis::use_data(GeorgesBankDiscardZones_sf, overwrite = TRUE)
 # usethis::use_data(Areas_Surfclam_sf, overwrite = TRUE)
 usethis::use_data(SurfClamFAs_sf, overwrite = TRUE)
 usethis::use_data(Areas_Halibut_sf, overwrite = TRUE)
+
 # usethis::use_data(coast_lores, overwrite = TRUE)
 usethis::use_data(coast_lores_sf, overwrite = TRUE)
 usethis::use_data(hex_sf, overwrite = TRUE)

@@ -11,3 +11,4 @@
 #' }
 #' @name banks_sf
 #' @docType data
+"banks_sf"

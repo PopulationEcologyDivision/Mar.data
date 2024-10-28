@@ -7,7 +7,6 @@
 #' of ~35N 0'. The eastern boundary follows the NAFO divisions boundaries of 6H,
 #' 3M, 3K, 2G, 2H and 2J.
 #'
-#' if{html}{figure{hex.png}{options:alt="Figure: hex coverage area"}}
 #' @docType data
 #' @format sf object frame with 1 data column
 #' \describe{

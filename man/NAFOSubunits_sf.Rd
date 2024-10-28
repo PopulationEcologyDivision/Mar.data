@@ -29,8 +29,6 @@ Shelf) and 4X _BoF (Bay of Fundy), as per direction from that unit.}
 }
 \source{
 https://www.nafo.int/Data/GIS
-
-if{html}{figure{NAFOSubunits.png}{options:alt="Figure: NAFOSubunits coverage area"}}
 }
 \usage{
 NAFOSubunits_sf

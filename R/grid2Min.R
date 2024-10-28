@@ -5,7 +5,6 @@
 #' and western boundaries follow the Canadian EEZ.  No cells cover the French
 #' "Keyhole"
 #'
-#' if{html}{figure{grid2Min.png}{options:alt="Figure: grid2Min coverage area"}}
 #' @docType data
 #' @format  SpatialPolygonsDataFrame frame with 1 data column
 #' \describe{
